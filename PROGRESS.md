@@ -73,4 +73,4 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   3 are reaches split by a short dip (S_13 T3, S_13 T4, S_12 T5); 2 are extra non-reach activations
   (S_13 T2, S_12 T3). Main results use all files; a sensitivity check excludes these 5 files (stage 5).
   Limitation: split reaches may partly reflect real fragmentation, not only a detection error.
-- If SampEn (P6) is too slow on real data, compute it on a downsampled envelope; decided before seeing any results (2026-11-24).
+- If P6 is too slow on real data, keep SampEn on the raw EMG but use a vectorised implementation and/or fewer 0.25 s windows per movement; the measure itself is not changed. Decided before seeing results (2026-11-24).
