@@ -32,7 +32,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   - Flat (zero-variance) curves are dropped before r and `n` counts the curves used. Check: identical / alternating / noise -> 1.00 / 0.19 / 0.00; 1 movement -> NaN. Fake: r about 0.73-0.76, no NaN.
 - [x] P8 agonist-antagonist correlation
   - Movements where either envelope is flat are skipped (n counts the ones used). Check: same shape -> r = 1, mirror -> -1, flat -> NaN. Fake: r about 0.73-0.75 for both pairs (the fake generator has no co-activation effect).
-- [ ] P9 direction tuning depth
+- [x] P9 direction tuning depth
+  - a_t = mean envelope over all movement samples of target t; n = number of targets. Check: equal / 1,2,3 / 1,1,4 levels -> 0 / 1.0 / 1.5; 1 target -> NaN. Fake: healthy about 1.1, stroke about 0.5 (the built-in fake effect).
 
 ## 4. Main parameters (signal statistics and coordination)
 - [ ] P4 median frequency

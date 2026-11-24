@@ -185,7 +185,15 @@ def p9_direction_tuning(trials: list[Trial], cfg: dict) -> list[dict]:
     value = (max_t a_t - min_t a_t) / mean_t a_t over the targets in `trials`. Needs >= 2 targets.
     Rows: one per muscle, target = "ALL". (Replaces the %MVC tuning from the earlier analysis.)
     """
-    raise NotImplementedError
+    # a[t, j] = mean envelope of muscle j over all movement samples of target t
+    a = np.array([np.concatenate(segs).mean(axis=0) for tr in trials if (segs := segments(tr, "env"))])
+    rows = []
+    for j, m in enumerate(MUSCLES):
+        col = a[:, j] if a.size else np.array([])
+        ok = len(col) >= 2 and col.mean() > 0
+        val = (col.max() - col.min()) / col.mean() if ok else np.nan
+        rows.append(_row("P9_direction_tuning", m, "ALL", val, len(col)))
+    return rows
 
 
 def p10_synergy_vaf1(trials: list[Trial], cfg: dict) -> list[dict]:
