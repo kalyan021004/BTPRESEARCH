@@ -21,6 +21,7 @@ P3 is implemented as a worked example of the pattern. The other 9 are TODO.
 from __future__ import annotations
 
 import numpy as np
+from scipy.signal import butter, find_peaks, sosfiltfilt
 
 from src.dataset import MUSCLES, Trial
 
@@ -47,7 +48,22 @@ def p1_fragmentation(trial: Trial, cfg: dict) -> list[dict]:
     value = mean peak count over the movements of this trial. One row per muscle.
     Meaning: a smooth reach has 1-2 bursts per muscle; a fragmented, jerky reach has more.
     """
-    raise NotImplementedError
+    c = cfg["parameters"]["P1_fragmentation"]
+    sos = butter(c["lowpass_order"], c["lowpass_hz"], fs=trial.fs, output="sos")
+    min_len = 3 * (2 * sos.shape[0] + 1)          # sosfiltfilt default padlen + 1
+    rows = []
+    for j, m in enumerate(MUSCLES):
+        counts = []
+        for seg in segments(trial, "env"):
+            if len(seg) <= min_len:
+                continue
+            x = sosfiltfilt(sos, seg[:, j])
+            if not np.isfinite(x).all() or x.max() <= 0:
+                continue
+            peaks, _ = find_peaks(x, prominence=c["min_prominence_frac"] * x.max())
+            counts.append(len(peaks))
+        rows.append(_row("P1_fragmentation", m, trial.target, np.mean(counts) if counts else np.nan, len(counts)))
+    return rows
 
 
 def p2_repetition_consistency(trial: Trial, cfg: dict) -> list[dict]:

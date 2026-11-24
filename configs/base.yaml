@@ -42,6 +42,7 @@ parameters:                    # the 10 PRIMARY parameters (pre-specified - do n
     unit: peaks per movement
     expected: higher in stroke
     lowpass_hz: 6
+    lowpass_order: 4
     min_prominence_frac: 0.2
   P2_repetition_consistency:
     name: Repetition consistency

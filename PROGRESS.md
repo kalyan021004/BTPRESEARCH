@@ -26,7 +26,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 
 ## 3. Baseline parameters (simple, timing-based)
 - [x] P3 movement duration (worked example)
-- [ ] P1 fragmentation
+- [x] P1 fragmentation
+  - Low-pass order added to config (`lowpass_order: 4`, as the docstring already said). Check: 1 / 2 / 1-with-noise bursts -> 1 / 2 / 1 peaks; fake data 8 rows per trial, n = 5, no NaN.
 - [ ] P2 repetition consistency
 - [ ] P8 agonist-antagonist correlation
 - [ ] P9 direction tuning depth
