@@ -21,7 +21,7 @@ P3 is implemented as a worked example of the pattern. The other 9 are TODO.
 from __future__ import annotations
 
 import numpy as np
-from scipy.signal import butter, find_peaks, sosfiltfilt
+from scipy.signal import butter, find_peaks, sosfiltfilt, welch
 
 from src.dataset import MUSCLES, Trial
 
@@ -100,7 +100,24 @@ def p4_median_frequency(trial: Trial, cfg: dict) -> list[dict]:
     value = frequency where the cumulative power reaches 50 %.
     Note in the report: dynamic contractions; MDF also changes with force level.
     """
-    raise NotImplementedError
+    nper = cfg["parameters"]["P4_median_frequency"]["welch_nperseg"]
+    lo, hi = cfg["signal"]["bandpass_hz"]
+    segs = [s for s in segments(trial, "emg") if len(s) >= nper]
+    rows = []
+    for j, m in enumerate(MUSCLES):
+        psd_sum, k_sum, f = 0.0, 0, None
+        for s in segs:
+            f, pxx = welch(s[:, j], fs=trial.fs, nperseg=nper)     # Hann, 50 % overlap (scipy default)
+            k = (len(s) - nper) // (nper // 2) + 1                   # number of Welch segments
+            psd_sum, k_sum = psd_sum + k * pxx, k_sum + k
+        if not k_sum:
+            rows.append(_row("P4_median_frequency", m, trial.target, np.nan, 0))
+            continue
+        band = (f >= lo) & (f <= hi)
+        cum = np.cumsum(psd_sum[band])
+        val = f[band][np.searchsorted(cum, 0.5 * cum[-1])] if cum[-1] > 0 else np.nan
+        rows.append(_row("P4_median_frequency", m, trial.target, val, len(segs)))
+    return rows
 
 
 def p5_kurtosis(trial: Trial, cfg: dict) -> list[dict]:

@@ -4,8 +4,8 @@ Deadline: BTP report and presentation in **2 days**.
 Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). Day 2 = stages 5-7.
 
 ## 1. Setup
-- [ ] Repo pushed to GitHub; `pip install -r requirements.txt` works
-- [ ] Fake data generated (`python scripts/make_fake_data.py`)
+- [x] Repo pushed to GitHub; `pip install -r requirements.txt` works
+- [x] Fake data generated (`python scripts/make_fake_data.py`)
 
 ## 2. Data
 - [x] Real data placed in `data/raw/EMG_Reaching_Healthy_Stroke` (on the PC)
@@ -36,7 +36,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   - a_t = mean envelope over all movement samples of target t; n = number of targets. Check: equal / 1,2,3 / 1,1,4 levels -> 0 / 1.0 / 1.5; 1 target -> NaN. Fake: healthy about 1.1, stroke about 0.5 (the built-in fake effect).
 
 ## 4. Main parameters (signal statistics and coordination)
-- [ ] P4 median frequency
+- [x] P4 median frequency
+  - PSDs are averaged over movements and weighted by Welch segment count; band from `signal.bandpass_hz`; resolution 3.8 Hz. Check: 100 Hz sine -> 101.6, white noise -> 233 (theory 235), 60-140 Hz band -> 101.6. Fake: about 146 Hz, no NaN.
 - [ ] P5 kurtosis
 - [ ] P6 sample entropy (check: white noise about 2.2, sine about 0)
 - [ ] P7 intermuscular beta coherence
