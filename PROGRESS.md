@@ -60,6 +60,9 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [ ] `--ablation threshold_low` and `threshold_high` (movement detection)
 - [ ] `--ablation no_rectify` (coherence without rectification)
 - [ ] Sensitivity check excluding the 5 flagged files (S_12 T3/T5, S_13 T2/T3/T4)
+- [ ] P6 sensitivity check: report missing P6 targets per group, then redo the P6 comparison using only
+      subject x muscle cells with all 6 targets (`n_targets` = 6). The primary P6 rule is unchanged. Planned 2026-11-24,
+      before any group comparison.
 - [ ] Short table: does the list of significant parameters change?
 
 ## 6. Evaluation
