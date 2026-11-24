@@ -48,7 +48,13 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   - `nmf_max_iter: 1000` moved to config (value as in docstring). Check: rank-1 data -> 1.00, two disjoint teams -> 0.50, independent (100 Hz) -> 0.83 = SVD rank-1 bound. sklearn warns "max_iter reached", but VAF equals the SVD rank-1 optimum to 5 decimals on all fake subjects, so the warning is harmless. Fake: healthy 0.86, stroke 0.92.
 - [x] `to_subject_level()` + split-half tables in `src/extract.py`
   - Writes parameters_subject.csv, parameters_subject_muscle.csv and parameters_split_half.csv. NaN targets are skipped in the means (count in `n_targets`). P7/P9/P10 are recomputed per half from that half's trials. Check: matches a hand recomputation from parameters_long.csv (diff 2e-16); half a = targets 1,3,5; P9 half b equals a direct call on targets 2,4,6. Fake: 8 x 10 table, no NaN.
-- [ ] Full extract on real data; `results/parameters_*.csv` committed
+- [x] Full extract on real data; `results/parameters_*.csv` committed
+  - Real run (2026-11-24): 437 s; [check] lines are the same 5 files (S_12 T3/T5, S_13 T2/T3/T4).
+    NaN in parameters_long.csv: none except P6 (62 of 1056 trial x muscle rows, n = 0: no 0.25 s window
+    reached 50 % of the envelope max; 17 of 22 subjects, mostly BIC 21 / PEC 16 / TRAP 13). Not tuned.
+    Subject and split-half tables have no NaN; 32 subject x muscle P6 means use < 6 targets (min 1); see `n_targets`.
+    P5 windows per trial 1-135 (median 26). P10: max_iter 5000 gives the same VAF as 1000 for H_1
+    (0.68848730, = SVD rank-1 bound), so the 66 ConvergenceWarnings are harmless.
 
 ## 5. Ablations (robustness)
 - [ ] `--ablation threshold_low` and `threshold_high` (movement detection)
