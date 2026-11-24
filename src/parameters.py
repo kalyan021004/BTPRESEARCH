@@ -150,7 +150,14 @@ def p8_antagonist_correlation(trial: Trial, cfg: dict) -> list[dict]:
     envelopes; value = mean r over movements. One row per pair, muscle = "BIC-TRI" / "AD-PD".
     Meaning: MVC-free co-activation - do opposing muscles rise and fall together?
     """
-    raise NotImplementedError
+    rows = []
+    for a, b in cfg["parameters"]["P8_antagonist_correlation"]["pairs"]:
+        ia, ib = MUSCLES.index(a), MUSCLES.index(b)
+        rs = [np.corrcoef(s[:, ia], s[:, ib])[0, 1] for s in segments(trial, "env")
+              if len(s) >= 2 and s[:, ia].std() > 0 and s[:, ib].std() > 0]
+        rows.append(_row("P8_antagonist_correlation", f"{a}-{b}", trial.target,
+                         np.mean(rs) if rs else np.nan, len(rs)))
+    return rows
 
 
 # ============================================================================ per subject (all trials)

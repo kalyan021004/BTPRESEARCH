@@ -30,7 +30,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   - Low-pass order added to config (`lowpass_order: 4`, as the docstring already said). Check: 1 / 2 / 1-with-noise bursts -> 1 / 2 / 1 peaks; fake data 8 rows per trial, n = 5, no NaN.
 - [x] P2 repetition consistency
   - Flat (zero-variance) curves are dropped before r and `n` counts the curves used. Check: identical / alternating / noise -> 1.00 / 0.19 / 0.00; 1 movement -> NaN. Fake: r about 0.73-0.76, no NaN.
-- [ ] P8 agonist-antagonist correlation
+- [x] P8 agonist-antagonist correlation
+  - Movements where either envelope is flat are skipped (n counts the ones used). Check: same shape -> r = 1, mirror -> -1, flat -> NaN. Fake: r about 0.73-0.75 for both pairs (the fake generator has no co-activation effect).
 - [ ] P9 direction tuning depth
 
 ## 4. Main parameters (signal statistics and coordination)
