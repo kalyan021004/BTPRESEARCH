@@ -28,7 +28,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [x] P3 movement duration (worked example)
 - [x] P1 fragmentation
   - Low-pass order added to config (`lowpass_order: 4`, as the docstring already said). Check: 1 / 2 / 1-with-noise bursts -> 1 / 2 / 1 peaks; fake data 8 rows per trial, n = 5, no NaN.
-- [ ] P2 repetition consistency
+- [x] P2 repetition consistency
+  - Flat (zero-variance) curves are dropped before r and `n` counts the curves used. Check: identical / alternating / noise -> 1.00 / 0.19 / 0.00; 1 movement -> NaN. Fake: r about 0.73-0.76, no NaN.
 - [ ] P8 agonist-antagonist correlation
 - [ ] P9 direction tuning depth
 

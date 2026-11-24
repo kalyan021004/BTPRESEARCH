@@ -76,7 +76,19 @@ def p2_repetition_consistency(trial: Trial, cfg: dict) -> list[dict]:
       2. Pearson r for every pair of movements; value = mean r. Needs >= 2 movements, else NaN.
     Meaning: how similar the muscle's activation pattern is across the 5 repeats of the same reach.
     """
-    raise NotImplementedError
+    npts = cfg["parameters"]["P2_repetition_consistency"]["n_points"]
+    grid = np.linspace(0, 1, npts)
+    segs = [s for s in segments(trial, "env") if len(s) >= 2]
+    rows = []
+    for j, m in enumerate(MUSCLES):
+        curves = np.array([np.interp(grid, np.linspace(0, 1, len(s)), s[:, j]) for s in segs]).reshape(-1, npts)
+        curves = curves[curves.std(axis=1) > 0]             # a flat curve has no defined r
+        if len(curves) < 2:
+            rows.append(_row("P2_repetition_consistency", m, trial.target, np.nan, len(curves)))
+            continue
+        r = np.corrcoef(curves)[np.triu_indices(len(curves), k=1)]
+        rows.append(_row("P2_repetition_consistency", m, trial.target, r.mean(), len(curves)))
+    return rows
 
 
 def p4_median_frequency(trial: Trial, cfg: dict) -> list[dict]:
