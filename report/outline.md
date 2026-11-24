@@ -21,7 +21,9 @@ Every number comes from `report/generated/` (tables + `numbers.md`). Never type 
 5. **Discussion**: physiological meaning of the parameters that separate; agreement or disagreement
    with the literature; parameters that did NOT differ.
 6. **Limitations**: n = 22; no per-patient clinical scores (Fugl-Meyer); healthy ages not reported;
-   crosstalk (coherence); dynamic contractions (median frequency); 3-significant-digit export (entropy).
+   crosstalk (coherence); dynamic contractions (median frequency); 3-significant-digit export (entropy);
+   movement detection flagged 5 of 189 files (S_12, S_13): 3 reaches split by a short dip, which may
+   partly reflect real fragmentation rather than a detection error (see PROGRESS.md decisions log).
 7. **Conclusion and next steps**: e.g. longitudinal data (PhysioMio) to test whether the parameters track recovery.
 
 ## Slides (about 10)

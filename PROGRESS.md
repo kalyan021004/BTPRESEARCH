@@ -43,6 +43,7 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 ## 5. Ablations (robustness)
 - [ ] `--ablation threshold_low` and `threshold_high` (movement detection)
 - [ ] `--ablation no_rectify` (coherence without rectification)
+- [ ] Sensitivity check excluding the 5 flagged files (S_12 T3/T5, S_13 T2/T3/T4)
 - [ ] Short table: does the list of significant parameters change?
 
 ## 6. Evaluation
@@ -56,9 +57,15 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [ ] `src/make_report_assets.py`: figures 1-5, tables 1-3, numbers.md
 - [ ] BTP report written from `report/outline.md` (numbers only from report/generated/)
 - [ ] Slides (about 10) from the same figures
-- [ ] Limitations section: n = 22, no clinical scores, ages not reported, crosstalk
+- [ ] Limitations section: n = 22, no clinical scores, ages not reported, crosstalk,
+      split reaches in flagged files may partly reflect real fragmentation
 
 ## Decisions log
 - MVC files are not used: the MVC was unreliable after stroke (33 % vs 6 % exceedance, earlier analysis).
 - Only directions 1-6 are used (done by every subject).
 - No train/val/test split (22 subjects): group statistics on all subjects; the composite uses leave-one-subject-out.
+- Movement detection rule kept unchanged (2026-11-24). 5 of 189 files flagged with 6 movements, all
+  stroke (S_12, S_13); inspected in figures/check/ (diagnostic plots, not committed).
+  3 are reaches split by a short dip (S_13 T3, S_13 T4, S_12 T5); 2 are extra non-reach activations
+  (S_13 T2, S_12 T3). Main results use all files; a sensitivity check excludes these 5 files (stage 5).
+  Limitation: split reaches may partly reflect real fragmentation, not only a detection error.
