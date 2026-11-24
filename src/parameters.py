@@ -127,7 +127,7 @@ def p6_sample_entropy(trial: Trial, cfg: dict) -> list[dict]:
       SampEn = -ln(A / B), A = matches of length m+1, B = matches of length m (exclude self-matches).
       Write a vectorised numpy version (no external entropy package); return NaN if A == 0.
     value = mean over kept windows. Check on white noise (~2.2 for m=2, r=0.2) and a sine (~0).
-    Note: the files store only 3 significant digits; mention this when interpreting entropy.
+    Note: the files store 7 significant digits, so quantisation does not limit entropy here.
     """
     raise NotImplementedError
 

@@ -6,7 +6,7 @@ Every number comes from `report/generated/` (tables + `numbers.md`). Never type 
 1. **Introduction**: why EMG after stroke; why %MVC normalisation is a problem (earlier finding: 33 % vs
    6 % MVC exceedance); aim = MVC-free parameters that separate patients from healthy people.
 2. **Data**: Mendeley dataset (citation, licence), 12 healthy + 10 stroke, 8 muscles, directions 1-6,
-   missing stroke folders 7-9, file facts (RMS MVC files, 3-digit export).
+   missing stroke folders 7-9, file facts (RMS MVC files, raw EMG in volts with 7 significant digits).
 3. **Methods**
    - Signal processing and reach detection (from config).
    - Table 1: the 10 parameters (`table1_definitions.md`), each with a one-line physiological meaning.
