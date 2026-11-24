@@ -43,7 +43,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [ ] P6 sample entropy (check: white noise about 2.2, sine about 0)
 - [x] P7 intermuscular beta coherence
   - Spectra are summed over movements (weighted by Welch segment count) and coherence is computed once per pair; 28 pairs, n = segments pooled. Check (unrectified): identical -> 1.00, shared beta -> 0.90, independent -> 0.008 (below the 1/K bias of 0.014); rectified identical -> 1.00. Fake: about 0.005 (independent channels).
-- [ ] P10 one-synergy VAF
+- [x] P10 one-synergy VAF
+  - `nmf_max_iter: 1000` moved to config (value as in docstring). Check: rank-1 data -> 1.00, two disjoint teams -> 0.50, independent (100 Hz) -> 0.83 = SVD rank-1 bound. sklearn warns "max_iter reached", but VAF equals the SVD rank-1 optimum to 5 decimals on all fake subjects, so the warning is harmless. Fake: healthy 0.86, stroke 0.92.
 - [ ] `to_subject_level()` + split-half tables in `src/extract.py`
 - [ ] Full extract on real data; `results/parameters_*.csv` committed
 

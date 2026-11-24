@@ -24,6 +24,7 @@ from itertools import combinations
 
 import numpy as np
 from scipy.stats import kurtosis
+from sklearn.decomposition import NMF
 from scipy.signal import butter, find_peaks, csd, sosfiltfilt, welch
 
 from src.dataset import MUSCLES, Trial
@@ -275,7 +276,22 @@ def p10_synergy_vaf1(trials: list[Trial], cfg: dict) -> list[dict]:
     Meaning: how much of all muscle activity one single "muscle team" explains; high = less independent
     control of muscles.
     """
-    raise NotImplementedError
+    segs = [s for tr in trials for s in segments(tr, "env")]
+    if not segs:
+        return [_row("P10_synergy_vaf1", "ALL", "ALL", np.nan, 0)]
+    E = np.concatenate(segs)
+    step = max(1, int(round(trials[0].fs / cfg["parameters"]["P10_synergy_vaf1"]["resample_hz"])))
+    nb = len(E) // step
+    E = E[: nb * step].reshape(nb, step, E.shape[1]).mean(axis=1)    # average consecutive samples
+    mx = E.max(axis=0) if nb else np.zeros(E.shape[1])
+    if nb < 2 or (mx <= 0).any():
+        return [_row("P10_synergy_vaf1", "ALL", "ALL", np.nan, nb)]
+    E = np.clip(E / mx, 0, None)
+    nmf = NMF(n_components=1, init="nndsvda", random_state=cfg["seed"],
+              max_iter=cfg["parameters"]["P10_synergy_vaf1"]["nmf_max_iter"])
+    W = nmf.fit_transform(E)
+    vaf = 1 - np.sum((E - W @ nmf.components_) ** 2) / np.sum(E ** 2)
+    return [_row("P10_synergy_vaf1", "ALL", "ALL", vaf, nb)]
 
 
 PER_TRIAL = [p1_fragmentation, p2_repetition_consistency, p3_movement_duration, p4_median_frequency,
