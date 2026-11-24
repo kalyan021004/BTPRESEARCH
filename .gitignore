@@ -4,6 +4,7 @@ data/
 # fake-data and scratch outputs
 results/ablations/fake*/
 figures/fake/
+figures/check/
 report/generated/fake/
 
 # model weights / checkpoints (none expected, but keep them out)
