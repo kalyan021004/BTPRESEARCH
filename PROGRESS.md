@@ -38,7 +38,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 ## 4. Main parameters (signal statistics and coordination)
 - [x] P4 median frequency
   - PSDs are averaged over movements and weighted by Welch segment count; band from `signal.bandpass_hz`; resolution 3.8 Hz. Check: 100 Hz sine -> 101.6, white noise -> 233 (theory 235), 60-140 Hz band -> 101.6. Fake: about 146 Hz, no NaN.
-- [ ] P5 kurtosis
+- [x] P5 kurtosis
+  - Shared helper `active_windows()` (P5 + P6) selects the windows. Check: Gaussian -> -0.05, Laplace -> 2.6 (theory 3; the estimator is biased low on 193-sample windows), uniform -> -1.18. Fake: about -0.1, 20-42 windows per trial, no NaN.
 - [ ] P6 sample entropy (check: white noise about 2.2, sine about 0)
 - [ ] P7 intermuscular beta coherence
 - [ ] P10 one-synergy VAF

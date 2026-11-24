@@ -21,6 +21,7 @@ P3 is implemented as a worked example of the pattern. The other 9 are TODO.
 from __future__ import annotations
 
 import numpy as np
+from scipy.stats import kurtosis
 from scipy.signal import butter, find_peaks, sosfiltfilt, welch
 
 from src.dataset import MUSCLES, Trial
@@ -34,6 +35,21 @@ def segments(trial: Trial, which: str = "emg") -> list[np.ndarray]:
     """List of (len, 8) arrays, one per movement. which = 'emg' (cleaned raw) or 'env' (envelope)."""
     X = trial.emg if which == "emg" else trial.env
     return [X[a:b] for a, b in trial.movements]
+
+
+def active_windows(trial: Trial, j: int, window_s: float, min_env_frac: float) -> list[np.ndarray]:
+    """Non-overlapping windows (cleaned raw EMG, uV) of muscle j inside the movements, kept only if the
+    window's mean envelope >= min_env_frac * that movement's envelope maximum. Used by P5 and P6."""
+    w = int(round(window_s * trial.fs))
+    out = []
+    for a, b in trial.movements:
+        x, e = trial.emg[a:b, j], trial.env[a:b, j]
+        if w < 2 or len(x) < w or e.max() <= 0:
+            continue
+        for k in range(len(x) // w):
+            if e[k * w:(k + 1) * w].mean() >= min_env_frac * e.max():
+                out.append(x[k * w:(k + 1) * w])
+    return out
 
 
 # ============================================================================ per trial, per muscle
@@ -132,7 +148,13 @@ def p5_kurtosis(trial: Trial, cfg: dict) -> list[dict]:
     Meaning: sEMG is close to Gaussian when many motor units are active; fewer / larger / synchronised
     units make it more peaked (higher kurtosis).
     """
-    raise NotImplementedError
+    c = cfg["parameters"]["P5_kurtosis"]
+    rows = []
+    for j, m in enumerate(MUSCLES):
+        k = [kurtosis(x, fisher=True) for x in active_windows(trial, j, c["window_s"], c["min_envelope_frac"])]
+        k = [v for v in k if np.isfinite(v)]
+        rows.append(_row("P5_kurtosis", m, trial.target, np.mean(k) if k else np.nan, len(k)))
+    return rows
 
 
 def p6_sample_entropy(trial: Trial, cfg: dict) -> list[dict]:
