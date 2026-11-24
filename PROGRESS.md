@@ -46,7 +46,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   - Spectra are summed over movements (weighted by Welch segment count) and coherence is computed once per pair; 28 pairs, n = segments pooled. Check (unrectified): identical -> 1.00, shared beta -> 0.90, independent -> 0.008 (below the 1/K bias of 0.014); rectified identical -> 1.00. Fake: about 0.005 (independent channels).
 - [x] P10 one-synergy VAF
   - `nmf_max_iter: 1000` moved to config (value as in docstring). Check: rank-1 data -> 1.00, two disjoint teams -> 0.50, independent (100 Hz) -> 0.83 = SVD rank-1 bound. sklearn warns "max_iter reached", but VAF equals the SVD rank-1 optimum to 5 decimals on all fake subjects, so the warning is harmless. Fake: healthy 0.86, stroke 0.92.
-- [ ] `to_subject_level()` + split-half tables in `src/extract.py`
+- [x] `to_subject_level()` + split-half tables in `src/extract.py`
+  - Writes parameters_subject.csv, parameters_subject_muscle.csv and parameters_split_half.csv. NaN targets are skipped in the means (count in `n_targets`). P7/P9/P10 are recomputed per half from that half's trials. Check: matches a hand recomputation from parameters_long.csv (diff 2e-16); half a = targets 1,3,5; P9 half b equals a direct call on targets 2,4,6. Fake: 8 x 10 table, no NaN.
 - [ ] Full extract on real data; `results/parameters_*.csv` committed
 
 ## 5. Ablations (robustness)
