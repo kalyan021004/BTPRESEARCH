@@ -8,9 +8,21 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [ ] Fake data generated (`python scripts/make_fake_data.py`)
 
 ## 2. Data
-- [ ] Real data placed in `data/raw/EMG_Reaching_Healthy_Stroke` (on the PC)
-- [ ] `python -m src.dataset --check` on real data: 12 healthy, 10 stroke; note every `[check]` line here
-- [ ] `results/subjects.csv` committed (fixed subject order = leave-one-out folds)
+- [x] Real data placed in `data/raw/EMG_Reaching_Healthy_Stroke` (on the PC)
+- [x] `python -m src.dataset --check` on real data: 12 healthy, 10 stroke; note every `[check]` line here
+  - Result (2026-11-24): healthy 12, stroke 10; targets done by every subject: [1, 2, 3, 4, 5, 6].
+    189 files load; fs = 1925.926 Hz in all; cropped length 55.0-55.2 s; H_1 Target 1 = 5 movements.
+  - 184 / 189 files give 5 movements; 5 files give 6 (all stroke, all within targets 1-6):
+    ```
+    [check] S_12 Target 3: 6 movements
+    [check] S_12 Target 5: 6 movements
+    [check] S_13 Target 2: 6 movements
+    [check] S_13 Target 3: 6 movements
+    [check] S_13 Target 4: 6 movements
+    ```
+  - Decision: thresholds not changed (no tuning); robustness is shown by the `threshold_low/high` ablations.
+    Full per-file table in `results/data_check.csv`.
+- [x] `results/subjects.csv` committed (fixed subject order = leave-one-out folds): H_1-H_12, then S_1-S_6, S_10-S_13
 
 ## 3. Baseline parameters (simple, timing-based)
 - [x] P3 movement duration (worked example)

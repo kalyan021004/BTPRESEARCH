@@ -1,0 +1,23 @@
+subject,group,n_targets,targets
+H_1,healthy,9,1 2 3 4 5 6 7 8 9
+H_2,healthy,9,1 2 3 4 5 6 7 8 9
+H_3,healthy,9,1 2 3 4 5 6 7 8 9
+H_4,healthy,9,1 2 3 4 5 6 7 8 9
+H_5,healthy,9,1 2 3 4 5 6 7 8 9
+H_6,healthy,9,1 2 3 4 5 6 7 8 9
+H_7,healthy,9,1 2 3 4 5 6 7 8 9
+H_8,healthy,9,1 2 3 4 5 6 7 8 9
+H_9,healthy,9,1 2 3 4 5 6 7 8 9
+H_10,healthy,9,1 2 3 4 5 6 7 8 9
+H_11,healthy,9,1 2 3 4 5 6 7 8 9
+H_12,healthy,9,1 2 3 4 5 6 7 8 9
+S_1,stroke,9,1 2 3 4 5 6 7 8 9
+S_2,stroke,9,1 2 3 4 5 6 7 8 9
+S_3,stroke,6,1 2 3 4 5 6
+S_4,stroke,9,1 2 3 4 5 6 7 8 9
+S_5,stroke,9,1 2 3 4 5 6 7 8 9
+S_6,stroke,6,1 2 3 4 5 6
+S_10,stroke,9,1 2 3 4 5 6 7 8 9
+S_11,stroke,9,1 2 3 4 5 6 7 8 9
+S_12,stroke,9,1 2 3 4 5 6 7 8 9
+S_13,stroke,6,1 2 3 4 5 6
