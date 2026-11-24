@@ -55,6 +55,23 @@ def active_windows(trial: Trial, j: int, window_s: float, min_env_frac: float) -
     return out
 
 
+def sample_entropy(x: np.ndarray, m: int, r: float) -> float:
+    """SampEn(m, r) of a 1-D signal - dimensionless. Chebyshev distance, self-matches excluded,
+    N - m templates for both lengths (Richman & Moorman 2000). NaN if no (m+1)-matches or too short."""
+    n = len(x) - m
+    if n < 2 or r <= 0:
+        return np.nan
+    emb = np.lib.stride_tricks.sliding_window_view(x, m + 1)[:n]      # (n, m+1)
+    iu = np.triu_indices(n, k=1)
+    d = np.zeros(len(iu[0]))
+    for c in range(m):                                                 # Chebyshev over the first m points
+        d = np.maximum(d, np.abs(emb[iu[0], c] - emb[iu[1], c]))
+    match_m = d <= r
+    B = np.count_nonzero(match_m)
+    A = np.count_nonzero(match_m & (np.abs(emb[iu[0], m] - emb[iu[1], m]) <= r))
+    return -np.log(A / B) if A > 0 else np.nan
+
+
 # ============================================================================ per trial, per muscle
 def p1_fragmentation(trial: Trial, cfg: dict) -> list[dict]:
     """P1 Activation fragmentation - unit: peaks per movement. Expected: higher in stroke.
@@ -171,7 +188,14 @@ def p6_sample_entropy(trial: Trial, cfg: dict) -> list[dict]:
     value = mean over kept windows. Check on white noise (~2.2 for m=2, r=0.2) and a sine (~0).
     Note: the files store 7 significant digits, so quantisation does not limit entropy here.
     """
-    raise NotImplementedError
+    c = cfg["parameters"]["P6_sample_entropy"]
+    rows = []
+    for j, mu in enumerate(MUSCLES):
+        se = [sample_entropy(x, c["m"], c["r_frac"] * x.std())
+              for x in active_windows(trial, j, c["window_s"], c["min_envelope_frac"])]
+        se = [v for v in se if np.isfinite(v)]
+        rows.append(_row("P6_sample_entropy", mu, trial.target, np.mean(se) if se else np.nan, len(se)))
+    return rows
 
 
 # ============================================================================ per trial

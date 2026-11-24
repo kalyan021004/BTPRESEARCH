@@ -40,7 +40,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
   - PSDs are averaged over movements and weighted by Welch segment count; band from `signal.bandpass_hz`; resolution 3.8 Hz. Check: 100 Hz sine -> 101.6, white noise -> 233 (theory 235), 60-140 Hz band -> 101.6. Fake: about 146 Hz, no NaN.
 - [x] P5 kurtosis
   - Shared helper `active_windows()` (P5 + P6) selects the windows. Check: Gaussian -> -0.05, Laplace -> 2.6 (theory 3; the estimator is biased low on 193-sample windows), uniform -> -1.18. Fake: about -0.1, 20-42 windows per trial, no NaN.
-- [ ] P6 sample entropy (check: white noise about 2.2, sine about 0)
+- [x] P6 sample entropy (check: white noise about 2.2, sine about 0)
+  - Vectorised `sample_entropy()` (N - m templates, <= r, Chebyshev) on raw EMG as specified. Check: identical to a naive loop (2.26931); white noise -> 2.20, 10 Hz sine -> 0.08. Runtime about 3 s per trial at most, about 90 s for the whole fake set, so the speed fallback is not needed. Fake: about 0.97 (band-passed EMG is more regular than white noise), no NaN.
 - [x] P7 intermuscular beta coherence
   - Spectra are summed over movements (weighted by Welch segment count) and coherence is computed once per pair; 28 pairs, n = segments pooled. Check (unrectified): identical -> 1.00, shared beta -> 0.90, independent -> 0.008 (below the 1/K bias of 0.014); rectified identical -> 1.00. Fake: about 0.005 (independent channels).
 - [x] P10 one-synergy VAF
