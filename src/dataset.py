@@ -4,13 +4,14 @@ Data loading for the Mendeley dataset (Israely, Leisman & Carmeli 2019, DOI 10.1
 IMPLEMENTED AND TESTED on real files - do not rewrite; extend only if needed.
 
 Facts about the real files (found by opening them):
-- Delsys EMGworks text export, TAB-separated even though named .csv, values in volts,
-  only 3 significant digits (e.g. 2.18E-04).
+- Delsys EMGworks text export, comma-separated .csv, values in volts,
+  7 significant digits (e.g. -2.735943e-005). The loader auto-detects the separator.
 - Target files: header of 8 "Label: ..." lines, then "X [s]" column header, then time + 8 muscles,
   RAW EMG, 1925.926 Hz, ~56 s, 5 reaches, exact-zero padding at the start and end.
-- MVC files: one muscle, already an RMS envelope ("FilterSlidingRMS58"). NOT used in this project
+- MVC files: one muscle, already an RMS envelope ("FilterSlidingRMS<N>", window N varies 16-82
+  between files). NOT used in this project
   (MVC normalisation proved unreliable after stroke; all parameters here are MVC-free).
-- The time column is rounded (3 digits); time is rebuilt from the sampling rate instead.
+- The time column is not used; time is rebuilt from the sampling rate instead.
 - Folder layout: <root>/Health_reaching/<id>/..., <root>/Stroke_reaching/<id>/...
   Stroke folders 7, 8, 9 are missing from the published data (10 patients, not 13).
 - Some patients have only Target 1-6; one file is named "MVC Poterior Deltoid.csv" (typo).

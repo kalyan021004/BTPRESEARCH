@@ -20,6 +20,28 @@ Find statistical EMG parameters that clearly separate post-stroke patients (n = 
   Do not rewrite it. Extend it only if you must, and keep it backwards compatible.
 - Use only reach directions done by every subject (1-6), via `common_targets()`.
 
+## Dataset format (verified on the real files, 2026-11-24)
+- Source: Mendeley, Israely, Leisman & Carmeli 2019 (DOI 10.17632/f4hh43nd78.2).
+- Layout: `<root>/Health_reaching/<1-12>/` and `<root>/Stroke_reaching/<1-6,10-13>/`.
+  **12 healthy, 10 stroke** (stroke folders 7, 8, 9 do not exist). 365 files, all `.csv`.
+- Per subject: `Target 1..9.csv` + 8 `MVC <muscle>.csv` (MVC not used).
+  Stroke 3, 6, 13 have only Target 1-6 -> 189 target files.
+  Stroke 10 uses lowercase `target N.csv`; MVC file names have typos/variants (e.g. "Poterior", "Upper Traps").
+- Main analysis uses target directions 1-6, common to all 22 subjects.
+- Target file format (Delsys EMGworks text export, all 189 files identical in structure):
+  - Lines 1-8: `Label: R <MUSCLE>: EMG <n>->TShift Sampling frequency: 1.925926e+003 Number of points: ... Unit: Volts`
+  - Line 9: column header `X [s],<8 channel labels>`; then data rows. **Comma-separated**, CRLF.
+  - 9 columns: time (s) + 8 channels of **raw EMG in volts**, scientific notation, 7 significant digits.
+  - Exact-zero padding at the start and end of each file.
+- Sampling rate: **1925.926 Hz** in every target file. Duration 55-56 s (~108 700 samples), 5 reaches per file.
+- Channels (same in all files, all right side "R"):
+  EMG1 Trapezius (middle fibers) = TRAP, EMG2 Anterior deltoid = AD, EMG3 Medial deltoid = MD,
+  EMG4 Posterior deltoid = PD, EMG5 Pectoralis major = PEC, EMG6 Infraspinatus = INF,
+  EMG7 Biceps brachii = BIC, EMG8 Triceps brachii = TRI.
+- Trapezius naming: the target files label EMG1 "TRAPEZIUS MIDDLE FIBERS", but most MVC file names
+  say "Upper Trapezius" (variants: "Trapezius", "Upper Traps").
+- MVC files: one channel, already an RMS envelope (`FilterSlidingRMS<N>`, N varies 16-82 between files).
+
 ## Folder rules
 - `configs/base.yaml` holds every threshold and setting. Never hard-code a number in `src/`.
 - `src/parameters.py`: one function per parameter. Follow the recipe in each docstring exactly.

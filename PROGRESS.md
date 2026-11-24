@@ -44,7 +44,7 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [ ] `src/make_report_assets.py`: figures 1-5, tables 1-3, numbers.md
 - [ ] BTP report written from `report/outline.md` (numbers only from report/generated/)
 - [ ] Slides (about 10) from the same figures
-- [ ] Limitations section: n = 22, no clinical scores, ages not reported, crosstalk, 3-digit data export
+- [ ] Limitations section: n = 22, no clinical scores, ages not reported, crosstalk
 
 ## Decisions log
 - MVC files are not used: the MVC was unreliable after stroke (33 % vs 6 % exceedance, earlier analysis).
