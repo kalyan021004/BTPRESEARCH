@@ -1,0 +1,174 @@
+"""
+The 10 PRIMARY statistical parameters (the "model" of this project).
+
+All are MVC-FREE: computed from the raw reaching EMG only. Reason: in our previous analysis reaching
+activity exceeded the MVC "maximum" in 33 % of stroke muscle values vs 6 % in healthy (p = 0.007),
+so MVC normalisation is unreliable after stroke. Every parameter here is either scale-free or a time /
+frequency / shape measure, so electrode gain and skin do not matter.
+
+Each function returns a list of rows:
+    {"parameter": "P1_fragmentation", "muscle": "BIC" | "ALL" | "BIC-TRI",
+     "target": 3 | "ALL", "value": float, "n": number of movements or windows used}
+Settings come from cfg["parameters"][<name>] - never hard-code thresholds.
+
+Rules for every function (see CLAUDE.md):
+- Use only samples inside trial.movements (the 5 reaches), never the rest periods.
+- Return NaN (not an error) when there is not enough data, and keep "n" honest.
+- Add a docstring line stating the unit.
+
+P3 is implemented as a worked example of the pattern. The other 9 are TODO.
+"""
+from __future__ import annotations
+
+import numpy as np
+
+from src.dataset import MUSCLES, Trial
+
+
+def _row(param: str, muscle: str, target, value: float, n: int) -> dict:
+    return {"parameter": param, "muscle": muscle, "target": target, "value": float(value), "n": int(n)}
+
+
+def segments(trial: Trial, which: str = "emg") -> list[np.ndarray]:
+    """List of (len, 8) arrays, one per movement. which = 'emg' (cleaned raw) or 'env' (envelope)."""
+    X = trial.emg if which == "emg" else trial.env
+    return [X[a:b] for a, b in trial.movements]
+
+
+# ============================================================================ per trial, per muscle
+def p1_fragmentation(trial: Trial, cfg: dict) -> list[dict]:
+    """P1 Activation fragmentation - unit: peaks per movement. Expected: higher in stroke.
+
+    TODO: implement.
+    For each muscle j and each movement:
+      1. env = envelope segment of muscle j; low-pass it (4th-order Butterworth, zero-phase,
+         cutoff cfg[...]["lowpass_hz"] = 6 Hz).
+      2. count peaks with scipy.signal.find_peaks(prominence = min_prominence_frac * max(env)).
+    value = mean peak count over the movements of this trial. One row per muscle.
+    Meaning: a smooth reach has 1-2 bursts per muscle; a fragmented, jerky reach has more.
+    """
+    raise NotImplementedError
+
+
+def p2_repetition_consistency(trial: Trial, cfg: dict) -> list[dict]:
+    """P2 Repetition consistency - unit: mean Pearson r (-1..1). Expected: lower in stroke.
+
+    TODO: implement.
+    For each muscle j:
+      1. take the envelope of muscle j in each movement; resample each to n_points (101) with
+         np.interp so all movements have the same length (time-normalised 0-100 %).
+      2. Pearson r for every pair of movements; value = mean r. Needs >= 2 movements, else NaN.
+    Meaning: how similar the muscle's activation pattern is across the 5 repeats of the same reach.
+    """
+    raise NotImplementedError
+
+
+def p4_median_frequency(trial: Trial, cfg: dict) -> list[dict]:
+    """P4 Median frequency - unit: Hz. Expected: two-sided (literature mixed).
+
+    TODO: implement.
+    For each muscle j: Welch PSD (nperseg from config, Hann, 50 % overlap) of the CLEANED RAW EMG in
+    each movement; average the PSDs over movements (weight by segment count); keep 20-450 Hz;
+    value = frequency where the cumulative power reaches 50 %.
+    Note in the report: dynamic contractions; MDF also changes with force level.
+    """
+    raise NotImplementedError
+
+
+def p5_kurtosis(trial: Trial, cfg: dict) -> list[dict]:
+    """P5 Amplitude kurtosis - unit: excess kurtosis (0 for a Gaussian). Expected: two-sided.
+
+    TODO: implement.
+    For each muscle j:
+      1. split each movement of the CLEANED RAW EMG into non-overlapping windows of window_s (0.1 s);
+      2. keep windows whose mean envelope >= min_envelope_frac (0.5) * the movement's envelope max
+         (so we compare similar activation levels and avoid amplitude changes inflating kurtosis);
+      3. scipy.stats.kurtosis(window, fisher=True) per window; value = mean over kept windows; n = windows.
+    Meaning: sEMG is close to Gaussian when many motor units are active; fewer / larger / synchronised
+    units make it more peaked (higher kurtosis).
+    """
+    raise NotImplementedError
+
+
+def p6_sample_entropy(trial: Trial, cfg: dict) -> list[dict]:
+    """P6 Sample entropy - unit: dimensionless. Expected: lower in stroke.
+
+    TODO: implement.
+    Same window selection as P5 but window_s = 0.25 s. For each kept window x:
+      SampEn(m, r) with m = 2, r = r_frac * std(x)  (r_frac = 0.2), Chebyshev distance,
+      SampEn = -ln(A / B), A = matches of length m+1, B = matches of length m (exclude self-matches).
+      Write a vectorised numpy version (no external entropy package); return NaN if A == 0.
+    value = mean over kept windows. Check on white noise (~2.2 for m=2, r=0.2) and a sine (~0).
+    Note: the files store only 3 significant digits; mention this when interpreting entropy.
+    """
+    raise NotImplementedError
+
+
+# ============================================================================ per trial
+def p3_movement_duration(trial: Trial, cfg: dict) -> list[dict]:
+    """P3 Movement duration - unit: s. Expected: higher in stroke.   (IMPLEMENTED - worked example)
+
+    Duration of each detected movement; value = mean over the movements of this trial.
+    """
+    d = [(b - a) / trial.fs for a, b in trial.movements]
+    return [_row("P3_movement_duration", "ALL", trial.target, np.mean(d) if d else np.nan, len(d))]
+
+
+def p8_antagonist_correlation(trial: Trial, cfg: dict) -> list[dict]:
+    """P8 Agonist-antagonist envelope correlation - unit: Pearson r. Expected: higher in stroke.
+
+    TODO: implement.
+    For each pair in cfg[...]["pairs"] (BIC-TRI, AD-PD) and each movement: Pearson r between the two
+    envelopes; value = mean r over movements. One row per pair, muscle = "BIC-TRI" / "AD-PD".
+    Meaning: MVC-free co-activation - do opposing muscles rise and fall together?
+    """
+    raise NotImplementedError
+
+
+# ============================================================================ per subject (all trials)
+def p7_beta_coherence(trials: list[Trial], cfg: dict) -> list[dict]:
+    """P7 Intermuscular beta coherence - unit: magnitude-squared coherence (0..1). Expected: two-sided.
+
+    TODO: implement.
+    For each of the 28 muscle pairs:
+      1. signal = cleaned raw EMG, full-wave rectified if cfg rectify is true (common practice);
+      2. for EVERY movement of EVERY trial compute Welch auto-spectra Pxx, Pyy and cross-spectrum Pxy
+         (scipy.signal.csd / welch, nperseg 512, Hann, 50 % overlap) and SUM them over movements
+         (pooling spectra, not averaging coherences);
+      3. coherence = |Pxy|^2 / (Pxx * Pyy); value = mean over band_hz (15-30 Hz).
+    Rows: one per pair (muscle = "AD-MD"), target = "ALL", n = number of Welch segments pooled.
+    Limitation to report: crosstalk between neighbouring muscles (e.g. deltoid heads) raises coherence.
+    """
+    raise NotImplementedError
+
+
+def p9_direction_tuning(trials: list[Trial], cfg: dict) -> list[dict]:
+    """P9 Direction tuning depth - unit: (max - min) / mean, scale-free. Expected: lower in stroke.
+
+    TODO: implement.
+    For each muscle: a_t = mean envelope during the movements of target t;
+    value = (max_t a_t - min_t a_t) / mean_t a_t over the targets in `trials`. Needs >= 2 targets.
+    Rows: one per muscle, target = "ALL". (Replaces the %MVC tuning from the earlier analysis.)
+    """
+    raise NotImplementedError
+
+
+def p10_synergy_vaf1(trials: list[Trial], cfg: dict) -> list[dict]:
+    """P10 One-synergy VAF - unit: fraction 0..1. Expected: higher in stroke.
+
+    TODO: implement.
+      1. concatenate the envelopes of all movements of all trials -> (n, 8);
+      2. resample to resample_hz (100 Hz) by averaging consecutive samples;
+      3. divide each muscle by its own maximum (scale-free);
+      4. sklearn NMF(n_components=1, init="nndsvda", random_state=cfg["seed"], max_iter=1000);
+         VAF = 1 - sum((E - W H)^2) / sum(E^2).
+    Rows: one row, muscle = "ALL", target = "ALL".
+    Meaning: how much of all muscle activity one single "muscle team" explains; high = less independent
+    control of muscles.
+    """
+    raise NotImplementedError
+
+
+PER_TRIAL = [p1_fragmentation, p2_repetition_consistency, p3_movement_duration, p4_median_frequency,
+             p5_kurtosis, p6_sample_entropy, p8_antagonist_correlation]
+PER_SUBJECT = [p7_beta_coherence, p9_direction_tuning, p10_synergy_vaf1]

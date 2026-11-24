@@ -1,0 +1,32 @@
+# data (never pushed - licence attribution + size)
+data/
+
+# fake-data and scratch outputs
+results/ablations/fake*/
+figures/fake/
+report/generated/fake/
+
+# model weights / checkpoints (none expected, but keep them out)
+*.pt
+*.pth
+*.ckpt
+*.pkl
+*.joblib
+checkpoints/
+
+# secrets
+.env
+*.key
+secrets*
+
+# python / editors / OS
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+~$*

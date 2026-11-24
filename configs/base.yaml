@@ -1,0 +1,107 @@
+# Main settings for the whole project. Every threshold used in the code comes from here.
+# Do not change a value after seeing results without recording the change in PROGRESS.md.
+
+seed: 42
+
+paths:
+  data_root: data/raw/EMG_Reaching_Healthy_Stroke   # folder that contains Health_reaching and Stroke_reaching
+  results: results
+  figures: figures
+  report_generated: report/generated
+
+data:
+  fs_fallback: 1925.926        # Hz; the real value is read from every file header
+  muscles: [TRAP, AD, MD, PD, PEC, INF, BIC, TRI]
+  targets: common              # "common" = only the reach directions done by EVERY subject (1-6)
+  expected_movements_per_target: 5
+
+# "Split": 22 subjects is too few for a train/val/test split.
+# Group statistics use all subjects; the only trained model (composite score) uses
+# leave-one-subject-out in the fixed order of results/subjects.csv.
+split:
+  scheme: leave_one_subject_out
+  reliability_halves:          # within-subject split-half reliability
+    half_a: [1, 3, 5]
+    half_b: [2, 4, 6]
+
+signal:
+  bandpass_hz: [20, 450]
+  bandpass_order: 4
+  notch_hz: 50
+  notch_q: 30
+  envelope_rms_samples: 58     # same sliding RMS the recording software used for the MVC files
+
+movement:                      # finding the 5 reaches in each Target file
+  smooth_s: 0.3
+  threshold_frac: 0.25         # 25 % of the way from rest (10th pct) to peak (99th pct) of combined activity
+  min_duration_s: 0.5
+
+parameters:                    # the 10 PRIMARY parameters (pre-specified - do not add/remove after seeing results)
+  P1_fragmentation:
+    name: Activation fragmentation
+    unit: peaks per movement
+    expected: higher in stroke
+    lowpass_hz: 6
+    min_prominence_frac: 0.2
+  P2_repetition_consistency:
+    name: Repetition consistency
+    unit: mean Pearson r
+    expected: lower in stroke
+    n_points: 101
+  P3_movement_duration:
+    name: Movement duration
+    unit: s
+    expected: higher in stroke
+  P4_median_frequency:
+    name: Median frequency
+    unit: Hz
+    expected: two-sided (literature mixed)
+    welch_nperseg: 512
+  P5_kurtosis:
+    name: Amplitude kurtosis
+    unit: excess kurtosis
+    expected: two-sided
+    window_s: 0.1
+    min_envelope_frac: 0.5
+  P6_sample_entropy:
+    name: Sample entropy
+    unit: dimensionless
+    expected: lower in stroke
+    window_s: 0.25
+    m: 2
+    r_frac: 0.2
+    min_envelope_frac: 0.5
+  P7_beta_coherence:
+    name: Intermuscular beta coherence
+    unit: coherence (0-1)
+    expected: two-sided
+    band_hz: [15, 30]
+    nperseg: 512
+    rectify: true
+  P8_antagonist_correlation:
+    name: Agonist-antagonist envelope correlation
+    unit: Pearson r
+    expected: higher in stroke
+    pairs: [[BIC, TRI], [AD, PD]]
+  P9_direction_tuning:
+    name: Direction tuning depth
+    unit: (max - min) / mean
+    expected: lower in stroke
+  P10_synergy_vaf1:
+    name: One-synergy VAF
+    unit: fraction (0-1)
+    expected: higher in stroke
+    resample_hz: 100
+
+stats:
+  test: mann_whitney_two_sided
+  fdr: benjamini_hochberg
+  alpha: 0.05
+  n_boot: 5000
+  n_perm: 2000
+  composite_top_k: 3           # parameters chosen INSIDE each leave-one-out fold
+
+ablations:                     # sensitivity checks (Stage 5 in PROGRESS.md)
+  threshold_low:  {movement.threshold_frac: 0.20}
+  threshold_high: {movement.threshold_frac: 0.30}
+  no_rectify:     {parameters.P7_beta_coherence.rectify: false}
