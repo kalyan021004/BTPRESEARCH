@@ -41,7 +41,8 @@ Plan: Day 1 = stages 1-4 (on fake data in the cloud, then real data on the PC). 
 - [x] P5 kurtosis
   - Shared helper `active_windows()` (P5 + P6) selects the windows. Check: Gaussian -> -0.05, Laplace -> 2.6 (theory 3; the estimator is biased low on 193-sample windows), uniform -> -1.18. Fake: about -0.1, 20-42 windows per trial, no NaN.
 - [ ] P6 sample entropy (check: white noise about 2.2, sine about 0)
-- [ ] P7 intermuscular beta coherence
+- [x] P7 intermuscular beta coherence
+  - Spectra are summed over movements (weighted by Welch segment count) and coherence is computed once per pair; 28 pairs, n = segments pooled. Check (unrectified): identical -> 1.00, shared beta -> 0.90, independent -> 0.008 (below the 1/K bias of 0.014); rectified identical -> 1.00. Fake: about 0.005 (independent channels).
 - [ ] P10 one-synergy VAF
 - [ ] `to_subject_level()` + split-half tables in `src/extract.py`
 - [ ] Full extract on real data; `results/parameters_*.csv` committed

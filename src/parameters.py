@@ -20,9 +20,11 @@ P3 is implemented as a worked example of the pattern. The other 9 are TODO.
 """
 from __future__ import annotations
 
+from itertools import combinations
+
 import numpy as np
 from scipy.stats import kurtosis
-from scipy.signal import butter, find_peaks, sosfiltfilt, welch
+from scipy.signal import butter, find_peaks, csd, sosfiltfilt, welch
 
 from src.dataset import MUSCLES, Trial
 
@@ -213,7 +215,32 @@ def p7_beta_coherence(trials: list[Trial], cfg: dict) -> list[dict]:
     Rows: one per pair (muscle = "AD-MD"), target = "ALL", n = number of Welch segments pooled.
     Limitation to report: crosstalk between neighbouring muscles (e.g. deltoid heads) raises coherence.
     """
-    raise NotImplementedError
+    c = cfg["parameters"]["P7_beta_coherence"]
+    nper, (lo, hi) = c["nperseg"], c["band_hz"]
+    pairs = list(combinations(range(len(MUSCLES)), 2))
+    Pauto, Pcross, k_sum, f = 0.0, {pr: 0.0 for pr in pairs}, 0, None
+    for tr in trials:
+        for s in segments(tr, "emg"):
+            if len(s) < nper:
+                continue
+            x = np.abs(s) if c["rectify"] else s
+            k = (len(x) - nper) // (nper // 2) + 1                   # Welch segments (Hann, 50 % overlap)
+            f, pa = welch(x, fs=tr.fs, nperseg=nper, axis=0)         # (freqs, 8)
+            Pauto = Pauto + k * pa
+            for a, b in pairs:
+                Pcross[(a, b)] = Pcross[(a, b)] + k * csd(x[:, a], x[:, b], fs=tr.fs, nperseg=nper)[1]
+            k_sum += k
+    rows = []
+    for a, b in pairs:
+        name = f"{MUSCLES[a]}-{MUSCLES[b]}"
+        if not k_sum:
+            rows.append(_row("P7_beta_coherence", name, "ALL", np.nan, 0))
+            continue
+        band = (f >= lo) & (f <= hi)
+        with np.errstate(divide="ignore", invalid="ignore"):
+            coh = np.abs(Pcross[(a, b)]) ** 2 / (Pauto[:, a] * Pauto[:, b])
+        rows.append(_row("P7_beta_coherence", name, "ALL", np.nanmean(coh[band]) if np.isfinite(coh[band]).any() else np.nan, k_sum))
+    return rows
 
 
 def p9_direction_tuning(trials: list[Trial], cfg: dict) -> list[dict]:
